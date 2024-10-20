@@ -1,6 +1,6 @@
 #! /bin/bash
 
-exploit=true
+exploit=false
 
 # over one minute keep track of all the processes that run
 # get any that are run with /bin/* executables 
@@ -14,8 +14,8 @@ while read file; do
 	echo $(stat -c "%a %U %G %n" $file)
 	perms=$(stat -c "%a" $file)
 	user=$(stat -c "%U" $file)
-	group=$(stat -c "%G" $file)
 	writable=false
+	owner=false
 
 	if [[ -w $file ]] then # if this file is writable by this user
 		writable=true
