@@ -30,14 +30,13 @@ done
 echo Writable: $writable
 
 # get locations of the .service files
-dirs=$(systemctl show | grep UnitPath)
-dirs=${dirs#*=}
+dirs=$(systemctl show | grep UnitPath | sed 's/.*=//g')
 
 services=''
 execs=''
 
 for dir in $dirs; do
-	# TODO: if it is a dir and not a file, cd into it and find all .service files within
+	# TODO: if it is a directory and not a file, cd into it and find all .service files within
 	#echo $dir
 	if [[ -d "$dir" ]]; then
 		cd "$dir"
@@ -46,16 +45,20 @@ for dir in $dirs; do
 			# if the file's extension is '.service', then add it to the list
                         if [[ "${file: -8}" == ".service" ]]; then
                                 services+=${dir}/${file}$'\n'
-				execs+=$(cat ${file} | grep ExecStart=)$'\n'
+				execs+=$(cat ${file} 2>/dev/null | grep -oP "^Exec(?:Start|Stop)=[-+@!\s]*\K(.*)$")$'\n' 
                         fi
                 done
 	fi
 done 
 
-# echo "${services}"
-while read service; do
-	echo $service
-done <<< "$execs"
+# remove blank lines
+execs=$(echo "${execs}" | sed '/^\s*$/d' | awk '{ print $1 }' | sort | uniq)
+
+echo "${execs}"
+
+#while read service; do
+#	echo $service
+#done <<< "$execs"
 
 #for service in ${execs}; do
 #	echo $service
