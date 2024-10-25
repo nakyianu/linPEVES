@@ -68,7 +68,7 @@ done
 for dir in $writable_dirs; do
 	cd "$dir"
 	for file in *; do
-		user=$(stat -c "%U" ${file})
+		user=$(stat -c "%U" ${file} 2>/dev/null)
 		if [[ -f "$file" ]]; then
 			if [[ -w "$file" ]]; then
 				writable+=${dir}/${file}$'\n'

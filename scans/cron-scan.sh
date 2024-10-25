@@ -11,8 +11,6 @@ rm /tmp/procs.tmp
 echo $script_files
 
 while read file; do
-	echo $(stat -c "%a %U %G %n" $file)
-	perms=$(stat -c "%a" $file)
 	user=$(stat -c "%U" $file)
 	writable=false
 	owner=false
