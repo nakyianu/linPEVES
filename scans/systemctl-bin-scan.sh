@@ -10,7 +10,7 @@ services=''
 execs=''
 
 for dir in $dirs; do
-	# TODO: if it is a directory and not a file, cd into it and find all .service files within
+	# if it is a directory and not a file, cd into it and find all .service files within
 	#echo $dir
 	if [[ -d "$dir" ]]; then
 		cd "$dir"

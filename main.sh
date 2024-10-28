@@ -13,7 +13,11 @@ check_writable() {
 		chmod u+w $file
 		writable=true
         fi
+
+	echo $writable
 }
+
+export -f check_writable
 
 scans=$(ls scans)
 for scan in $scans; 
