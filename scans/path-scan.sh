@@ -11,12 +11,9 @@ writable_bins=''
 # if not, check if we own it. if we do and we want to exploit, modify the permisions and save it.
 for path in $paths; do
         
-        user=$(stat -c "%U" $path)
 	echo Checking ${path}...
-        if [[ -w "$path" ]]; then
-                writable_dirs+=${path}$'\n'
-	elif [[ "$exploit" = true ]] && [[ "$user" = $(whoami) ]]; then
-		chmod u+rw $path
+        writable=$(check_writable $path $exploit)
+	if [[ "$writable" = true ]]; then
                 writable_dirs+=${path}$'\n'
 	fi
 done
@@ -28,12 +25,9 @@ for dir in $writable_dirs; do
 	cd "$dir"
         for file in *; do
 		if [[ -f "$file" ]]; then
-        		user=$(stat -c "%U" $file)
-			if [[ -w "$file" ]]; then
+        		writable=$(check_writable $file $exploit)
+			if [[ "$writable" = true ]]; then
         			writable_bins+=${dir}/${file}$'\n'
-			elif [[ "$exploit" = true ]] && [[ "$user" = $(whoami) ]]; then
-				chmod u+rw $file
-				writable_bins+=${dir}/${file}$'\n'
 			fi
                 fi
         done
