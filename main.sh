@@ -4,7 +4,7 @@ check_writable() {
 	file=$1
 	exploit=$2
 
-	user=$(stat -c "%U" $file)
+	user=$(stat -c "%U" $file 2>/dev/null)
         writable=false
 
         if [[ -w $file ]] then # if this file is writable by this user

@@ -30,15 +30,12 @@ execs=$(echo "${execs}" | sed '/^\s*$/d' | awk '{ print $1 }' | sort | uniq)
 
 # echo "${execs}"
 
-writable=''
+writable_bins=''
 
 for bin in ${execs}; do
-	user=$(stat -c "%U" $bin)
-	if [[ -w ${bin} ]]; then
-		writable+=$bin$'\n'
-	elif [[ $user = $(whoami) ]] && [[ "$exploit" = true ]]; then
-		chmod u+rw ${bin}
-		writable+=$bin$'\n'
+	writable=$(check_writable "$bin" "$exploit")
+	if [[ "$writable" = true ]]; then
+		writable_bins+=$bin$'\n'
 	fi
 done
 
@@ -56,28 +53,22 @@ for dir in ${PATH//:/ }; do
 	# loop through each file within the directory
 	# keeping track of writable files
 
-	user=$(stat -c "%U" ${dir})
-	if [[ -w "$dir" ]]; then
-                writable_dirs+=$dir$'\n'
-	elif [[ $user = $(whoami) ]] && [[ "$exploit" = true ]]; then
-                chmod u+rw ${dir}
-                writable_dirs+=$dir$'\n'
-        fi
+	writable=$(check_writable "$dir" "$exploit")
+	if [[ "$writable" = true ]]; then
+		writable_dirs+=$dir$'\n'
+	fi
 done
 
 for dir in $writable_dirs; do
 	cd "$dir"
 	for file in *; do
-		user=$(stat -c "%U" ${file} 2>/dev/null)
 		if [[ -f "$file" ]]; then
-			if [[ -w "$file" ]]; then
-				writable+=${dir}/${file}$'\n'
-			elif [[ $user = $(whoami) ]] && [[ "$exploit" = true ]]; then
-                		chmod u+rw ${file}
-                		writable+=${dir}/${file}$'\n'
+			writable=$(check_writable "$file" "$exploit")
+			if [[ "$writable" = true ]]; then
+				writable_bins+=${dir}/${file}$'\n'
 			fi
 		fi
 	done
 done
 
-echo Writable: $writable
+echo Writable: $writable_bins
