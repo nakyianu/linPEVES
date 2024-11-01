@@ -1,16 +1,16 @@
 #! /bin/bash
 
 check_writable() {
-	file=$1
-	exploit=$2
+	FILE=$1
+	EXPLOIT=$2
 
-	user=$(stat -c "%U" $file 2>/dev/null)
+	user=$(stat -c "%U" "$FILE" 2>/dev/null)
         writable=false
 
-        if [[ -w $file ]] then # if this file is writable by this user
+        if [[ -w "$FILE" ]] then # if this file is writable by this user
 		writable=true
-        elif [[ "$exploit" = true ]] && [[ $user == $(whoami) ]] then
-		chmod u+w $file
+        elif [[ "$EXPLOIT" = 1 ]] && [[ $user == $(whoami) ]] then
+		chmod u+w $FILE
 		writable=true
         fi
 

