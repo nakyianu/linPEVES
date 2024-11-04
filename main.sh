@@ -19,8 +19,7 @@ check_writable() {
 
 export -f check_writable
 
-#scans=$(ls scans)
-scans="path-scan.sh"
+scans=$(ls scans)
 for scan in $scans; 
 do
     echo "running $scan"
