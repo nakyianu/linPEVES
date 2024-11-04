@@ -2,6 +2,7 @@
 
 EXPLOIT=1
 
+curr_dir=$(pwd)
 
 # get locations of the .service files
 dirs=$(systemctl show | grep UnitPath | sed 's/.*=//g')
@@ -70,6 +71,8 @@ for dir in $writable_dirs; do
 		fi
 	done
 done
+
+cd $curr_dir
 
 # writes the exploitable files to the correct exploit file
 sed -i "s#EXPLOITABLE\=.*#EXPLOITABLE\=${writable_bins}#g" exploits/systemctl-bin-exploit.sh
