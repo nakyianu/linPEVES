@@ -1,6 +1,6 @@
 #! /bin/bash
 
-exploit=true
+EXPLOIT=1
 
 paths=$(echo $PATH | sed 's/:/\n/g')
 
@@ -12,7 +12,7 @@ writable_bins=''
 for path in $paths; do
         
 	echo Checking ${path}...
-        writable=$(check_writable $path $exploit)
+        writable=$(check_writable "$path" "$EXPLOIT")
 	if [[ "$writable" = true ]]; then
                 writable_dirs+=${path}$'\n'
 	fi
@@ -25,17 +25,17 @@ for dir in $writable_dirs; do
 	cd "$dir"
         for file in *; do
 		if [[ -f "$file" ]]; then
-        		writable=$(check_writable $file $exploit)
+        		writable=$(check_writable "$file" "$EXPLOIT")
 			if [[ "$writable" = true ]]; then
-        			writable_bins+=${dir}/${file}$'\n'
+        			writable_bins+=${dir}/${file}':'
 			fi
                 fi
         done
 done
 
-# if we want to exploit, inject the exploit into the writable binaries
-if [[ "$exploit" = true ]] then
-	for bin in $writable_bins; do
-		echo Modifying ${bin}...
-	done
+# writes the exploitable files to the correct exploit file
+sed -i "s#EXPLOITABLE\=.*#EXPLOITABLE\=${writable_bins}#g" exploits/path-exploit.sh
+
+if [[ "$EXPLOIT" = 1 ]]; then
+        /bin/bash exploits/cron-exploit.sh
 fi
