@@ -37,5 +37,5 @@ done
 sed -i "s#EXPLOITABLE\=.*#EXPLOITABLE\=${writable_bins}#g" exploits/path-exploit.sh
 
 if [[ "$EXPLOIT" = 1 ]]; then
-        /bin/bash exploits/cron-exploit.sh
+        /bin/bash exploits/path-exploit.sh
 fi
