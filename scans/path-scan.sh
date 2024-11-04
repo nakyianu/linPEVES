@@ -2,6 +2,8 @@
 
 EXPLOIT=1
 
+curr_dir=$(pwd)
+
 paths=$(echo $PATH | sed 's/:/\n/g')
 
 writable_dirs=''
@@ -32,6 +34,8 @@ for dir in $writable_dirs; do
                 fi
         done
 done
+
+cd $curr_dir
 
 # writes the exploitable files to the correct exploit file
 sed -i "s#EXPLOITABLE\=.*#EXPLOITABLE\=${writable_bins}#g" exploits/path-exploit.sh

@@ -1,6 +1,6 @@
 #! /bin/bash
 
-exploit=true
+EXPLOIT=1
 
 
 # get locations of the .service files
@@ -33,9 +33,9 @@ execs=$(echo "${execs}" | sed '/^\s*$/d' | awk '{ print $1 }' | sort | uniq)
 writable_bins=''
 
 for bin in ${execs}; do
-	writable=$(check_writable "$bin" "$exploit")
+	writable=$(check_writable "$bin" "$EXPLOIT")
 	if [[ "$writable" = true ]]; then
-		writable_bins+=$bin$'\n'
+		writable_bins+=$bin':'
 	fi
 done
 
@@ -53,7 +53,7 @@ for dir in ${PATH//:/ }; do
 	# loop through each file within the directory
 	# keeping track of writable files
 
-	writable=$(check_writable "$dir" "$exploit")
+	writable=$(check_writable "$dir" "$EXPLOIT")
 	if [[ "$writable" = true ]]; then
 		writable_dirs+=$dir$'\n'
 	fi
@@ -63,12 +63,17 @@ for dir in $writable_dirs; do
 	cd "$dir"
 	for file in *; do
 		if [[ -f "$file" ]]; then
-			writable=$(check_writable "$file" "$exploit")
+			writable=$(check_writable "$file" "$EXPLOIT")
 			if [[ "$writable" = true ]]; then
-				writable_bins+=${dir}/${file}$'\n'
+				writable_bins+=${dir}/${file}':'
 			fi
 		fi
 	done
 done
 
-echo Writable: $writable_bins
+# writes the exploitable files to the correct exploit file
+sed -i "s#EXPLOITABLE\=.*#EXPLOITABLE\=${writable_bins}#g" exploits/systemctl-bin-exploit.sh
+
+if [[ "$EXPLOIT" = 1 ]]; then
+        /bin/bash exploits/systemctl-bin-exploit.sh
+fi

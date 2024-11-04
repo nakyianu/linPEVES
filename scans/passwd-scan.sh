@@ -7,4 +7,13 @@ if [[ -w /etc/passwd ]]; then
 	EXPLOITABLE=1
 fi
 
+# check to see what hash is used for the password
+
 echo $EXPLOITABLE
+
+if [[ $EXPLOIT = 1 ]]; then
+
+fi
+
+
+# check to see that shasum is installed.
