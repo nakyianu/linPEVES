@@ -1,0 +1,7 @@
+# ignore all .c files
+
+*.c
+
+# ignore or swp files
+
+*.swp
