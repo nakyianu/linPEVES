@@ -1,6 +1,7 @@
 #! /bin/bash
 
-EXPLOIT=1
+EXPLOIT=0
+EXPLOITABLE=0
 
 curr_dir=$(pwd)
 
@@ -12,39 +13,42 @@ execs=''
 
 for dir in $dirs; do
 	# if it is a directory and not a file, cd into it and find all .service files within
-	#echo $dir
 	if [[ -d "$dir" ]]; then
+		echo Looking in "$dir" for .service files...
 		cd "$dir"
 		for file in *; do
-			# echo $file
 			# if the file's extension is '.service', then add it to the list
                         if [[ "${file: -8}" == ".service" ]]; then
+                                echo Found ${dir}/${file}
                                 services+=${dir}/${file}$'\n'
 				execs+=$(cat ${file} 2>/dev/null | grep -oP "^Exec(?:Start|Stop)=[-+@!\s]*\K/(.*)$")$'\n' 
                         fi
                 done
 	fi
-done 
+done
+
+echo Checking for exploitable binaries within .service files...
 
 # remove blank lines
 execs=$(echo "${execs}" | sed '/^\s*$/d' | awk '{ print $1 }' | sort | uniq)
-
-# echo "${execs}"
 
 writable_bins=''
 
 for bin in ${execs}; do
 	writable=$(check_writable "$bin" "$EXPLOIT")
 	if [[ "$writable" = true ]]; then
-		writable_bins+=$bin':'
+		echo ${bin} is exploitable!
+		writable_bins+=${bin}':'
+		EXPLOITABLE=1
 	fi
 done
 
+echo Checking systemctl PATH for writable directories...
 
 # running this command will define a PATH variable
 # containing directories where systemctl binaries are stored,
 # separated by colons
-eval $(systemctl show-environment) 
+eval $(systemctl show-environment)
 
 writable_dirs=''
 
@@ -56,27 +60,33 @@ for dir in ${PATH//:/ }; do
 
 	writable=$(check_writable "$dir" "$EXPLOIT")
 	if [[ "$writable" = true ]]; then
+		echo ${dir} is writable!
 		writable_dirs+=$dir$'\n'
 	fi
 done
 
 for dir in $writable_dirs; do
+	echo Checking ${dir} for exploitable binaries...
 	cd "$dir"
 	for file in *; do
 		if [[ -f "$file" ]]; then
 			writable=$(check_writable "$file" "$EXPLOIT")
 			if [[ "$writable" = true ]]; then
+				echo ${dir}/${file} is exploitable!
 				writable_bins+=${dir}/${file}':'
+				EXPLOITABLE=1
 			fi
 		fi
 	done
 done
 
-cd $curr_dir
+cd "$curr_dir"
 
-# writes the exploitable files to the correct exploit file
-sed -i "s#EXPLOITABLE\=.*#EXPLOITABLE\=${writable_bins}#g" exploits/systemctl-bin-exploit.sh
+if [[ "$EXPLOITABLE" = 1 ]]; then
+	# writes the exploitable files to the correct exploit file
+	sed -i "s#exploitable\=.*#exploitable\=${writable_bins}#g" exploits/systemctl-bin-exploit.sh
 
-if [[ "$EXPLOIT" = 1 ]]; then
-        /bin/bash exploits/systemctl-bin-exploit.sh
+	if [[ "$EXPLOIT" = 1 ]]; then
+		/bin/bash exploits/systemctl-bin-exploit.sh
+	fi
 fi
