@@ -8,3 +8,8 @@ if [[ $sudo_ver -eq 8 ]];
     then EXPLOITABLE=1; 
     else EXPLOITABLE=0; 
 fi
+
+if [[ "$EXPLOIT" = 1 ]] && [[ "$EXPLOITABLE" = 1 ]]; 
+    then /bin/bash exploits/sudo-exploit.sh
+fi
+
