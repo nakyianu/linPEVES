@@ -1,6 +1,6 @@
 #! /bin/bash
 
-EXPLOIT=1
+EXPLOIT=0
 EXPLOITABLE=0
 
 echo Monitoring processes that run over the next minute...

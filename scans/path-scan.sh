@@ -1,6 +1,6 @@
 #! /bin/bash
 
-EXPLOIT=1
+EXPLOIT=0
 EXPLOITABLE=0
 
 curr_dir=$(pwd)
