@@ -1,5 +1,5 @@
 #! /bin/bash
-EXPLOIT=1
+EXPLOIT=0
 EXPLOITABLE=0
 
 sudo_ver=$(sudo -V | grep "Sudo ver" | awk '{print $3; exit}' | awk -F '.' '{print $2}') # $ means execute the following 

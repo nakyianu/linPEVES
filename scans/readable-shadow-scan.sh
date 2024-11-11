@@ -1,6 +1,6 @@
 #! bin bash
 
-EXPLOIT=1       # Determines whether user wants to exploit scan (if possible)
+EXPLOIT=0
 EXPLOITABLE=0   # Determines whether a scan is possible 
 
 

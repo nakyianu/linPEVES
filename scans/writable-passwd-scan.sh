@@ -9,11 +9,18 @@ fi
 
 # check to see what hash is used for the password
 
-echo $EXPLOITABLE
+# echo $EXPLOITABLE
 
-if [[ $EXPLOIT = 1 ]]; then
+if [ "$EXPLOIT" = 1 ]; then
+       if [ "$EXPLOITABLE=1" ]; then
+# run the exploit file
+	else
+		echo "Not exploitable, skipping exploit."
 
+else 
+	exit
 fi
+
 
 
 # check to see that shasum is installed.
