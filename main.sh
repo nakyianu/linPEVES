@@ -15,7 +15,7 @@ scans=()
 # ARG_OPTIONAL_SINGLE([exploit],[e],[list of exploits to run])
 # ARG_OPTIONAL_BOOLEAN([prompt],[p],[prompt user before exploit])
 # ARG_OPTIONAL_BOOLEAN([verbose],[v],[add verbosity to script (false by default)])
-# ARG_OPTIONAL_ACTION([--list], [], [Lists all scans and their associated numerical indices])
+# ARG_OPTIONAL_ACTION([--list], [-l], [Lists all scans and their associated numerical indices])
 # ARG_VERSION([echo "linPEVES $version"])
 # ARG_HELP([The general script's help msg])
 # ARGBASH_GO()
@@ -79,7 +79,7 @@ print_help()
 
 
 	printf '%s\n' "The general script's help msg"
-	printf 'Usage: %s [-s|--scan <args>] || [-e|--exploit <args>] [-p|--prompt] [-v|--verbose] [--version] [-h|--help]\n' "$0"
+	printf 'Usage: %s [-s|--scan <args>] || [-e|--exploit <args>] [-p|--prompt] [-v|--verbose] [-V|--version] [-l|--list] [-h|--help]\n' "$0"
 	printf '\t%s\n' "-s, --scan: list of scans to run (no default)"
 	printf '\t%s\n' "-e, --exploit: list of exploits to run (no default)"
 	# not for MVP
@@ -198,11 +198,11 @@ parse_commandline()
 			-v*)
 				_arg_verbose=true
 				;;
-			--list)
+			-l|--list)
 				print_scans
 				exit 0
 				;;
-			--version)
+			-V|--version)
 				echo "linPEVES $version"
 				exit 0
 				;;
