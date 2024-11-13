@@ -4,6 +4,8 @@ EXPLOIT=0
 EXPLOITABLE=0
 VERBOSE=0
 
+sudo_access=$(sudo -l -U $(whoami) | grep -o ALL | head -1)
+
 if [ -w /etc/sudoers ]; then
 	echo "/etc/sudoers is writable by user"
 	EXPLOITABLE=1
