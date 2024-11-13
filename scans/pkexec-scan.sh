@@ -1,13 +1,23 @@
-find / -perm -4000 2>/dev/null > find_pkexec
+#!/bin/bash
 
-result=$(grep "pkexec" find_pkexec)
+EXPLOIT=0
+EXPLOITABLE=0
+VERBOSE=0
+
+result=$(find / -perm -4000 2>/dev/null | grep "pkexec")
 
 sudo_access=$(sudo -l -U $(whoami) | grep -o ALL | head -1)
 
 if [ -n "$result" ] && [ -n "$sudo_access" ]; then
-	PKEXEC=1
-	export PKEXEC
+	EXPLOITABLE=1
 fi
 
 
-rm find_pkexec
+if [ "$EXPLOIT" = 1 ]; then
+    if [ "$EXPLOITABLE=1" ]; then
+		/bin/bash exploits/pkexec-exploit.sh
+	else
+		echo "Not exploitable, skipping exploit."
+else 
+	exit
+fi
