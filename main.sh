@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# This is a rather minimal example Argbash potential
-# Example taken from http://argbash.readthedocs.io/en/stable/example.html
+# Authors: Aadi Akyianu, Lazuli Kleinhans
+# Sources: Example taken from http://argbash.readthedocs.io/en/stable/example.html
 #
 version="v1.0"
 VERBOSE=false
@@ -26,10 +26,10 @@ scans=()
 # Generated online by https://argbash.io/generate
 
 
-# # When called, the process ends.
+# Kills process when called
 # Args:
-# 	$1: The exit message (print to stderr)
-# 	$2: The exit code (default is 1)
+# 	$1: Exit message (print to stderr)
+# 	$2: Exit code (default is 1)
 # if env var _PRINT_HELP is set to 'yes', the usage is print to stderr (prior to $1)
 # Example:
 # 	test -f "$_arg_infile" || _PRINT_HELP=yes die "Can't continue, have to supply file as an argument, got '$_arg_infile'" 4
@@ -62,9 +62,7 @@ _arg_exploit=()
 # _arg_verbose=false
 
 
-# Function that prints general usage of the script.
-# This is useful if users asks for it, or if there is an argument parsing error (unexpected / spurious arguments)
-# and it makes sense to remind the user how the script is supposed to be called.
+# prints usage and info about each argument
 print_help()
 {
 	echo 
@@ -90,6 +88,7 @@ print_help()
 	printf '\t%s\n\n' "-h, --help: Prints help"
 }
 
+# called in --list to help users know which scan is associated with which exploit.
 print_scans()
 {
 	printf '\n%s\n\n' "- [ List of Scans and Exploits ] -" 
@@ -110,23 +109,24 @@ print_scans()
 	printf '%s\n\n' " 12 |                               |                               "
 }
 
-# The parsing of the command-line
+# Parses cli arguments
 parse_commandline()
 {
 	while test $# -gt 0
 	do
 		_key="$1"
 		case "$_key" in
-			# We support whitespace as a delimiter between option argument and its value.
-			# Therefore, we expect the --scan or -s value.
-			# so we watch for --scan and -s.
-			# Since we know that we got the long or short option,
-			# we just reach out for the next argument to get the value.
+			# Supports whitespace delimitation between argument and value.
+			# Expects the --scan or -s value.
+			# Reach for the next argument to get the value.
+			# Supports bash list expansion and allows for multiple values for the --scan and -s parameters
 			-s|--scan)
 				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
-		
+
+				# iterates through the arguments and adds then to scan list
 				while test $# -gt 0;
 				do
+					# goes until it no longer encounters a number
 					if [[ "$2" =~ [0-9] ]];
 					then
 						_arg_scan[${#_arg_scan[@]}]+="$2"
@@ -136,25 +136,14 @@ parse_commandline()
 					fi	
 				done
 				;;
-			# We support the = as a delimiter between option argument and its value.
-			# Therefore, we expect --scan=value, so we watch for --scan=*
-			# For whatever we get, we strip '--scan=' using the ${var##--scan=} notation
-			# to get the argument value
-			# --scan=*)
-			# 	_arg_scan+="${_key##--scan=}"
-			# 	;;
-			# # We support getopts-style short arguments grouping,
-			# # so as -s accepts value, we allow it to be appended to it, so we watch for -s*
-			# # and we strip the leading -s from the argument string using the ${var##-s} notation.
-			# -s*)
-			# 	_arg_scan+="${_key##-s}"
-			# 	;;
-			# See the comment of option '--scan' to see what's going on here - principle is the same.
+			
 			-e|--exploit)
-				# test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
 				EXPLOIT=1
+				# iterates through the arguments and adds then to exploit list
 				while test $# -gt 0;
 				do
+					# goes until it no longer encounters a number
 					if [[ "$2" =~ [0-9] ]];
 					then
 						_arg_exploit[${#_arg_exploit[@]}]+="$2"
@@ -164,37 +153,24 @@ parse_commandline()
 					fi	
 				done
 				;;
-			# # See the comment of option '--scan=' to see what's going on here - principle is the same.
-			# --exploit=*)
-			# 	_arg_exploit="${_key##--exploit=}"
-			# 	;;
-			# # See the comment of option '-s' to see what's going on here - principle is the same.
-			# -e*)
-			# 	_arg_exploit="${_key##-e}"
-			# 	;;
-			# The prompt argurment doesn't accept a value,
-			# we expect the --prompt, so we watch for it.
+			
 			-p|--prompt)
 				_arg_prompt=true
 				;;
-			# See the comment of option '--verbose' to see what's going on here - principle is the same.
-			# See the comment of option '-s' to see what's going on here - principle is the same.
-			# We support getopts-style short arguments clustering,
-			# so as -v doesn't accept value, other short options may be appended to it, so we watch for -v*.
-			# After stripping the leading -v from the argument, we have to make sure
-			# that the first character that follows coresponds to a short option.
+			# Supports short argument clustering,
+			# Since -p doesn't accept value, other short options may be appended to it, so we watch for -p*.
+			# After stripping the leading -p from the argument, we have to make sure
+			# first character that follows coresponds to a short option.
 			-p*)
 				_arg_prompt=true
 				;;
 			-v|--verbose)
 				_arg_verbose=true
 				;;
-			# See the comment of option '--verbose' to see what's going on here - principle is the same.
-			# See the comment of option '-s' to see what's going on here - principle is the same.
-			# We support getopts-style short arguments clustering,
-			# so as -v doesn't accept value, other short options may be appended to it, so we watch for -v*.
+			# Supports short argument clustering,
+			# Since -v doesn't accept value, other short options may be appended to it, so we watch for -v*.
 			# After stripping the leading -v from the argument, we have to make sure
-			# that the first character that follows coresponds to a short option.
+			# first character that follows coresponds to a short option.
 			-v*)
 				_arg_verbose=true
 				;;
@@ -206,15 +182,17 @@ parse_commandline()
 				echo "linPEVES $version"
 				exit 0
 				;;
+			# prints help and exits (does not currently support --help [command])
 			-h|--help)
 				print_help
 				exit 0
 				;;
-			# See the comment of option '-v' to see what's going on here - principle is the same.
+			# Supports argument clustering, similar concept to -p and -v.
 			-h*)
 				print_help
 				exit 0
 				;;
+			# anything else
 			*)
 				echo "$@"
 				_PRINT_HELP=yes die "FATAL ERROR: Got an unexpected argument '$1'" 1
@@ -224,6 +202,9 @@ parse_commandline()
 	done
 }
 
+
+# makes sure that the arguments passed in are appropriate
+# currently very rudimentary (does not yet catch errors where a number is inputted that doesn't correspond with a scan/exploit.)
 validate_arguments() 
 {
 	VERBOSE=$_arg_verbose
@@ -250,6 +231,7 @@ validate_arguments()
 
 }
 
+# global function for scan files to use as it is a common check
 check_writable() {
 	FILE=$1
 	EXPLOIT=$2
@@ -271,6 +253,8 @@ check_writable() {
 
 export -f check_writable
 
+
+# reset function used to reset scan files to EXPLOIT=0
 reset_exploit_flag()
 {
 for scan in ${ALL_SCANS[@]};
@@ -284,10 +268,6 @@ parse_commandline "$@"
 validate_arguments
 reset_exploit_flag
 
-# OTHER STUFF GENERATED BY Argbash
-
-### END OF CODE GENERATED BY Argbash (sortof) ### ])
-# [ <-- needed because of Argbash
 
 
 # echo "Value of --scan: ${_arg_scan[@]}"
@@ -299,13 +279,18 @@ reset_exploit_flag
 # echo "Value of scans: ${scans[@]}"
 # echo "Value of exploits: ${exploits[@]}"
 
-
+# TODO: turn into function and call at the end
+# goes through the files that are to be exploited and sets EXPLOIT = 1
 for exploit in ${exploits[@]};
 do
 	sed -i 's/EXPLOIT=.*/EXPLOIT=1/' "scans/${ALL_SCANS[$exploit]}"
 done
 
 
+# runs the scans 
+# TODO: implement support for when scan and exploit lists do not match.
+# TODO: turn into function and pass in scans and exploits to run
+# TODO: check to see if both scan and exploit are being run to avoid executing twice 
 for scan in ${scans[@]}; 
 do
     echo "running ${ALL_SCANS[$scan]}"
@@ -313,4 +298,3 @@ do
     echo "done with ${ALL_SCANS[$scan]}"
 done
 
-# ] <-- needed because of Argbash
