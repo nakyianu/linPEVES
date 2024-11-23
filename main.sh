@@ -3,14 +3,8 @@
 # Authors: Aadi Akyianu, Lazuli Kleinhans
 # Sources: Example taken from http://argbash.readthedocs.io/en/stable/example.html
 #
-version="v1.0"
-VERBOSE=false
-EXPLOIT=0
-ALL_SCANS=("cron-scan.sh" "path-scan.sh" "pkexec-scan.sh" "readable-shadow-scan.sh" "shellshock-scan.sh" "sudo-scan.sh" "sudoers-scan.sh" "systemctl-bin-scan.sh" "writable-passwd-scan.sh" "writable-shadow-scan.sh")
-ALL_EXPLOITS=("cron-exploit.sh" "path-exploit.sh" "pkexec-exploit.sh" "readable-shadow-exploit.sh" "shellshock-exploit.sh" "sudo-exploit.sh" "sudoers-exploit.sh" "systemctl-bin-exploit.sh" "writable-passwd-exploit.sh" "writable-shadow-exploit.sh")
-exploits=()
-scans=()
 #
+# Created by Argbash
 # ARG_OPTIONAL_SINGLE([scan],[s],[list of scans to run])
 # ARG_OPTIONAL_SINGLE([exploit],[e],[list of exploits to run])
 # ARG_OPTIONAL_BOOLEAN([prompt],[p],[prompt user before exploit])
@@ -26,13 +20,60 @@ scans=()
 # Generated online by https://argbash.io/generate
 
 
+version="v1.0"
+VERBOSE=0
+EXPLOIT=0
+PROMPT=0
+SCAN=0
+
+exploits=()
+exploits_to_run=()
+scans=()
+
+ALL_FILES=(
+"cron"
+"path"
+"pkexec"
+"readable-shadow"
+"shellshock"
+"sudo"
+"sudoers"
+"systemctl-bin"
+"writable-passwd"
+"writable-shadow"
+)
+
+# ALL_SCANS=(
+# "cron-scan.sh"
+# "path-scan.sh"
+# "pkexec-scan.sh"
+# "readable-shadow-scan.sh"
+# "shellshock-scan.sh"
+# "sudo-scan.sh"
+# "sudoers-scan.sh"
+# "systemctl-bin-scan.sh"
+# "writable-passwd-scan.sh"
+# "writable-shadow-scan.sh"
+# )
+
+# ALL_EXPLOITS=("cron-exploit.sh"
+# "path-exploit.sh"
+# "pkexec-exploit.sh"
+# "readable-shadow-exploit.sh"
+# "shellshock-exploit.sh"
+# "sudo-exploit.sh"
+# "sudoers-exploit.sh"
+# "systemctl-bin-exploit.sh"
+# "writable-passwd-exploit.sh"
+# "writable-shadow-exploit.sh"
+# )
+
+
 # Kills process when called
 # Args:
 # 	$1: Exit message (print to stderr)
 # 	$2: Exit code (default is 1)
-# if env var _PRINT_HELP is set to 'yes', the usage is print to stderr (prior to $1)
-# Example:
-# 	test -f "$_arg_infile" || _PRINT_HELP=yes die "Can't continue, have to supply file as an argument, got '$_arg_infile'" 4
+# if env var _PRINT_HELP is set to 'yes', the usage is printed to stderr (prior to $1)
 die()
 {
 	local _ret="${2:-1}"
@@ -53,13 +94,13 @@ begins_with_short_option()
 	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
 }
 
-# THE DEFAULTS INITIALIZATION - OPTIONALS
-_arg_scan=()
-_arg_exploit=()
+# Default Initialization because all arugments are optional
+_arg_scan=() 				# default value
+_arg_exploit=()				# default value
 
-# not for mvp
-# _arg_prompt=false
-# _arg_verbose=false
+# not fully supported yet (not for mvp)
+_arg_verbose=0   					# default value
+_arg_prompt=0    					# default value
 
 
 # prints usage and info about each argument
@@ -122,6 +163,7 @@ parse_commandline()
 			# Supports bash list expansion and allows for multiple values for the --scan and -s parameters
 			-s|--scan)
 				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				SCAN=1
 
 				# iterates through the arguments and adds then to scan list
 				while test $# -gt 0;
@@ -155,33 +197,34 @@ parse_commandline()
 				;;
 			
 			-p|--prompt)
-				_arg_prompt=true
+				_arg_prompt=1
 				;;
 			# Supports short argument clustering,
 			# Since -p doesn't accept value, other short options may be appended to it, so we watch for -p*.
 			# After stripping the leading -p from the argument, we have to make sure
-			# first character that follows coresponds to a short option.
+			# first character that follows corresponds to a short option.
 			-p*)
-				_arg_prompt=true
+				_arg_prompt=1
 				;;
+			
 			-v|--verbose)
-				_arg_verbose=true
+				_arg_verbose=1
 				;;
-			# Supports short argument clustering,
-			# Since -v doesn't accept value, other short options may be appended to it, so we watch for -v*.
-			# After stripping the leading -v from the argument, we have to make sure
-			# first character that follows coresponds to a short option.
+			# Supports argument clustering, similar concept to -p.
 			-v*)
-				_arg_verbose=true
+				_arg_verbose=1
 				;;
+			
 			-l|--list)
 				print_scans
 				exit 0
 				;;
+			
 			-V|--version)
 				echo "linPEVES $version"
 				exit 0
 				;;
+			
 			# prints help and exits (does not currently support --help [command])
 			-h|--help)
 				print_help
@@ -192,10 +235,11 @@ parse_commandline()
 				print_help
 				exit 0
 				;;
+			
 			# anything else
 			*)
 				echo "$@"
-				_PRINT_HELP=yes die "FATAL ERROR: Got an unexpected argument '$1'" 1
+				_PRINT_HELP=yes die "Unexpected argument '$1'" 1
 				;;
 		esac
 		shift
@@ -208,28 +252,87 @@ parse_commandline()
 validate_arguments() 
 {
 	VERBOSE=$_arg_verbose
-
-	if [ "${#_arg_scan[@]}" -eq 0 ] && [ "${#_arg_exploit[@]}" -eq 0 ]; then
+	PROMPT=$_arg_prompt
+	
+	# check there is at least one scan or exploit to execute
+	if [ $EXPLOIT -eq 0 ] && [ $SCAN -eq 0 ]; 
+	then
 		_PRINT_HELP=yes die "No scans or exploits specified" 1
-	fi
-	if [ "${#_arg_scan[@]}" -gt 0 ]; then
-		for scan in ${_arg_scan[@]}; do
-			scans[${#scans[@]}]+=$scan
-		done
-	fi
 
-	if [ "${#_arg_exploit[@]}" -gt 0 ]; then
-		if [ "$_arg_prompt" = true ]; then
+	
+	elif [ "$SCAN" -eq 1 ]; 
+	then
+		if [ "${#_arg_scan[@]}" -eq 0 ];
+		then
+			scans=$ALL_FILES
+		else
+			for scan_num in ${_arg_scan[@]}; do
+				scans[${#scans[@]}]+=${ALL_FILES[$scan_num]}
+				# if [ $VERBOSE -eq 1 ]; then
+				# 	sed -i "s/VERBOSE\=.*/VERBOSE\=$VERBOSE/" "scans/${ALL_FILES[$scan_num]}-scan.sh"
+				# fi
+			done
+		fi
+
+	elif [ "$EXPLOIT" -eq 1 ]; 
+	then
+		if [ "$PROMPT" -eq 1 ]; 
+		then
 			EXPLOIT=2
 		fi
-		for exploit in ${_arg_exploit[@]}; do
-			exploits[${#exploits[@]}]+=$exploit
-		done
-	elif [ "${#_arg_exploit[@]}" -eq 0 ] && [ $EXPLOIT -eq 1 ]; then
-		exploits+=("all")
+
+		if [ "${#_arg_exploit[@]}" -eq 0 ];
+		then
+			exploits=$ALL_FILES
+		else
+			for exploit_num in ${_arg_exploit[@]}; 
+			do
+				exploit=${ALL_FILES[$exploit_num]}
+				exploits[${#exploits[@]}]+=$exploit
+
+				if [[ ! "${scans[@]}" =~ "$exploit" ]];
+				then
+					exploits_to_run[${#exploits[@]}]+=$exploit
+				fi
+				# if [ "$VERBOSE" -eq 1 ]; then
+				# 	sed -i "s/VERBOSE\=.*/VERBOSE\=$VERBOSE/" "exploits/${ALL_FILES[$exploit_num]}-exploit.sh"
+				# fi
+			done
+		fi
 	fi
 
 }
+
+
+
+
+# reset function used to reset scan files to EXPLOIT=0 and VERBOSE=0
+reset_flags()
+{
+	for scan in ${ALL_SCANS[@]};
+	do
+		sed -i "s/EXPLOIT\=.*/EXPLOIT\=0/" "scans/$scan-scan.sh";
+		sed -i "s/VERBOSE\=.*/VERBOSE\=0/" "scans/$scan-scan.sh";
+		sed -i "s/VERBOSE\=.*/VERBOSE\=0/" "scans/$scan-exploit.sh";
+	done
+}
+
+# goes through the files that are to be exploited and sets EXPLOIT flag
+# sets VERBOSE flag for all files to be executed
+set_flags()
+{
+	for exploit in ${exploits[@]};
+	do
+		sed -i "s/EXPLOIT=.*/EXPLOIT=$EXPLOIT/" "scans/$exploit-scan.sh}"
+		sed -i "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "exploit/$exploit-exploit.sh}"
+	done
+
+	for scan in ${scans[@]};
+	do
+		sed -i "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "scans/$scan-scan.sh}"
+	done
+}
+
 
 # global function for scan files to use as it is a common check
 check_writable() {
@@ -243,7 +346,8 @@ check_writable() {
         if [[ -w "$FILE" ]]; 
 		then 
 			writable=true
-        elif [[ "$EXPLOIT" = 1 ]] && [[ $user == $(whoami) ]]; then
+        elif [[ "$EXPLOIT" = 1 ]] && [[ $user == $(whoami) ]]; 
+		then
 			chmod u+w $FILE
 			writable=true
         fi
@@ -251,24 +355,51 @@ check_writable() {
 	echo $writable
 }
 
-export -f check_writable
 
-
-# reset function used to reset scan files to EXPLOIT=0
-reset_exploit_flag()
-{
-for scan in ${ALL_SCANS[@]};
-do
-	sed -i 's/EXPLOIT\=.*/EXPLOIT\=0/' "scans/$scan";
-done
-}
 
 # Now call all the functions defined above that are needed to get the job done
 parse_commandline "$@"
+reset_flags
 validate_arguments
-reset_exploit_flag
+set_flags
+run()
+
+# exports function for other files to call it
+export -f check_writable
 
 
+
+# # removes elements in exploit list that will be run by scans
+# new_array=()
+# for exploit in "${exploits[@]}";
+# do
+# 	if [[ ! "${scans[@]}" =~ "$exploit" ]];
+# 	then
+# 		new_array+=("$exploit")
+# 	fi
+# done
+
+# exploits=${new_array[@]}
+
+
+run()
+{
+	# runs the scans first
+	for scan in ${scans[@]}; 
+	do
+		echo "running $scan-scan"
+		/bin/bash "scans/$scan-scan.sh"
+		echo "done with $scan-scan"
+	done
+
+	# once all scans are done, if there are exploits left over, run those
+	for exploit in ${exploits_to_run[@]}; 
+	do
+		echo "running $exploit-scan"
+		/bin/bash "scans/$exploit-scan.sh"
+		echo "done with $exploit-scan"
+	done
+}
 
 # echo "Value of --scan: ${_arg_scan[@]}"
 # echo "Value of --exploit: ${_arg_exploit[@]}"
@@ -278,23 +409,3 @@ reset_exploit_flag
 # echo "Value of VERBOSE: $VERBOSE"
 # echo "Value of scans: ${scans[@]}"
 # echo "Value of exploits: ${exploits[@]}"
-
-# TODO: turn into function and call at the end
-# goes through the files that are to be exploited and sets EXPLOIT = 1
-for exploit in ${exploits[@]};
-do
-	sed -i 's/EXPLOIT=.*/EXPLOIT=1/' "scans/${ALL_SCANS[$exploit]}"
-done
-
-
-# runs the scans 
-# TODO: implement support for when scan and exploit lists do not match.
-# TODO: turn into function and pass in scans and exploits to run
-# TODO: check to see if both scan and exploit are being run to avoid executing twice 
-for scan in ${scans[@]}; 
-do
-    echo "running ${ALL_SCANS[$scan]}"
-    /bin/bash scans/${ALL_SCANS[$scan]}
-    echo "done with ${ALL_SCANS[$scan]}"
-done
-
