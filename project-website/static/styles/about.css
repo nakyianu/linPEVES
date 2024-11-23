@@ -1,0 +1,29 @@
+html {
+    scroll-behavior: smooth;
+    color: white;
+    background-color: #191414;
+    /* background: linear-gradient(0deg, #191414 25%, #888888 50%, #888888 66%, #191414 87.5%); */
+    background: linear-gradient(0deg, #191414 25%, #3b4145 66%, #3b4145 80%, #191414 90%);
+    background-color: #191414;
+}
+
+.button {
+    background-color: #1fc640;
+    font-size: large;
+    border: none;
+    border-radius: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.button:hover {
+    transform: scale(1.05);
+    transition: .1s;
+}
+
+.button:active {
+    transform: scale(1);
+    transition: .1s;
+}

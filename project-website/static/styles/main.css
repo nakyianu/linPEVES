@@ -1,10 +1,24 @@
 html {
     scroll-behavior: smooth;
     color: white;
-    background-color: #191414;
+    background-color: #141b18;
     /* background: linear-gradient(0deg, #191414 25%, #888888 50%, #888888 66%, #191414 87.5%); */
-    background: linear-gradient(0deg, #191414 25%, #3b4145 66%, #3b4145 80%, #191414 90%);
+    background: linear-gradient(0deg, #141b18 25%, #262e2c 66%, #293330 80%, #141b18 90%);
     background-color: #191414;
+}
+
+/*+ Headers: +*/
+h1 {
+	text-align: center;
+	font-size: 50px;
+}
+h2 {
+	text-align: center;
+	font-size: 30px;
+}
+h3 {
+	text-align: center;
+	font-weight: normal;
 }
 
 .button {
@@ -28,25 +42,33 @@ html {
     transition: .1s;
 }
 
-.go {
-    margin-left: 5px;
-    width: 100px;
-    height: 50px;
-    font-size: 20px;
-    background: linear-gradient(144deg,#b650ff, #7261df, #00bcc9);
-    border-radius: 20px;
-    color: white;
-    border: none;
-    cursor: pointer;
+/*+ Title cards +*/
+.row {
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 50px;
+	justify-content: space-evenly
 }
 
-@keyframes gradientFlow {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
+.card {
+	height: 100%;
+	background-color: #6f6451; 
+	color: #f0f0f0;
+	border-radius: 10px;
+	transition: all 0.2s ease;	
 }
 
-.go:hover {
-    background: linear-gradient(90deg, #b650ff, #7261df, #00bcc9, #7261df, #b650ff, #b650ff);
-    background-size: 600% 100%; /* Adjust the size for smoother transition */
-    animation: gradientFlow 5s linear infinite; /* Adjust the duration as needed */
+.card img {
+	height: 150px; 
+	width: 150px;
+}
+
+.card:hover {
+	border-radius: 20px;
+	transform: scale(1.05);
+	box-shadow: 0 20px 30px #2e2921;
+}
+
+.popup {
+	opacity: 0;
 }
