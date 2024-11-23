@@ -12,11 +12,9 @@ fi
 # check to see what hash is used for the password
 
 
-if [ "$EXPLOIT" = 1 ]; then
-    if [ "$EXPLOITABLE" = 1 ]; then
-		/bin/bash exploits/writable-passwd-exploit.sh
-	else
-		echo "Not exploitable, skipping exploit."
-else 
-	exit
+if [ "$EXPLOITABLE" -eq 1 ]; then
+	run_exploit "writable-passwd"
+else
+	test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
+	exit 
 fi

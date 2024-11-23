@@ -355,17 +355,53 @@ check_writable() {
 	echo $writable
 }
 
+# global function to print statements when verbosity is enabled
+print_verbosity() 
+{
+	statement=$1
 
+	if [[ "$VERBOSE" -eq 1 ]];
+	then
+		echo $statement
+	fi
+}
+
+run_exploit()
+{
+	exploit=$1
+
+	if [[ "$EXPLOIT" -eq 0 ]];
+	then
+		exit 0
+
+	elif [[ "$EXPLOIT" -eq 1 ]];
+	then
+		/bin/bash "exploits/$exploit-exploit.sh"
+	
+	elif [[ "$EXPLOIT" -eq 2 ]];
+	then
+		read -sp "Do you wish to proceed with exploit? (y/n): " response
+		echo -e "\n"
+		echo "$response"
+		if [[ "$response" =~ "Y"|"y" ]]; 
+		then 
+			/bin/bash "exploits/$exploit-exploit.sh"
+		else 
+			echo "Skipping exploit..." 
+	fi
+}
 
 # Now call all the functions defined above that are needed to get the job done
 parse_commandline "$@"
 reset_flags
 validate_arguments
 set_flags
-run()
+run
 
 # exports function for other files to call it
 export -f check_writable
+export -f print_verbosity
+export -f run_exploit
 
 
 
@@ -395,9 +431,9 @@ run()
 	# once all scans are done, if there are exploits left over, run those
 	for exploit in ${exploits_to_run[@]}; 
 	do
-		echo "running $exploit-scan"
-		/bin/bash "scans/$exploit-scan.sh"
-		echo "done with $exploit-scan"
+		echo "running $exploit-exploit"
+		/bin/bash "exploits/$exploit-exploit.sh"
+		echo "done with $exploit-exploit"
 	done
 }
 

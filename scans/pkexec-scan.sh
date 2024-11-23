@@ -13,11 +13,9 @@ if [ -n "$result" ] && [ -n "$sudo_access" ]; then
 fi
 
 
-if [ "$EXPLOIT" = 1 ]; then
-    if [ "$EXPLOITABLE=1" ]; then
-		/bin/bash exploits/pkexec-exploit.sh
-	else
-		echo "Not exploitable, skipping exploit."
-else 
-	exit
+if [ "$EXPLOITABLE" -eq 1 ]; then
+	run_exploit "pkexec"
+else
+	test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
+	exit 
 fi

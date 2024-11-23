@@ -11,7 +11,7 @@ oldIFS=$IFS
 IFS='.' read -r -a version_arr <<< "$version"
 
 if [[ "${version_arr[0]}" -le '4' ]] && [[ "${version_arr[1]}" -le '3' ]]; then
-	shellshock=$(env X=”() { :;} ; echo Bash is Infected” /bin/sh -c “echo completed)
+	shellshock=$(env X="() { :;} ; echo vulnerable" /bin/bash -c echo not-vulnerable)
 		
 	if [[ "$shellshock" != "not-vulnerable" ]]; then
 		echo "Version suscpetible to shellshock exploit"
@@ -19,12 +19,12 @@ if [[ "${version_arr[0]}" -le '4' ]] && [[ "${version_arr[1]}" -le '3' ]]; then
 	fi
 fi
 
-if [ "$EXPLOIT" = 1 ]; then
-    if [ "$EXPLOITABLE" = 1 ]; then
-		/bin/bash exploits/writable-passwd-exploit.sh
-	else
-		echo "Not exploitable, skipping exploit."
-	fi
+if [ "$EXPLOITABLE" -eq 1 ]; 
+then
+	run_exploit "shellshock"
+else
+	test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
+	exit 
 fi
 
 IFS=$oldIFS

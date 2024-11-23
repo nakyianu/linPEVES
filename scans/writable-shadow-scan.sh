@@ -9,12 +9,9 @@ if [ -w /etc/shadow ]; then
 	EXPLOITABLE=1
 fi
 
-if [ "$EXPLOIT" = 1 ]; then
-    if [ "$EXPLOITABLE" = 1 ]; then
-		/bin/bash exploits/writable-shadow-exploit.sh
-	else
-		echo "Not exploitable, skipping exploit."
-
-else 
-	exit
+if [ "$EXPLOITABLE" -eq 1 ]; then
+	run_exploit "writable-shadow"
+else
+	test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
+	exit 
 fi
