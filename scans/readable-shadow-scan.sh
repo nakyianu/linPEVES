@@ -1,8 +1,10 @@
 #! /bin/bash
 # Readable shadow scan
 
-EXPLOIT=1       # Determines whether user wants to exploit scan (if possible)
-EXPLOITABLE=0   # Determines whether a scan is possible 
+# Determines whether user wants to exploit scan (if possible)
+EXPLOIT=1   
+# Determines whether a scan is possible 
+EXPLOITABLE=0
 VERBOSE=0
 
 # Checks if /etc/shadow is readable by the current user
