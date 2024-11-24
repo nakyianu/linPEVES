@@ -26,11 +26,10 @@ while read file; do
 
 done <<< "$script_files"
 
-if [[ "$EXPLOITABLE" == 1 ]]; then
-	# writes the exploitable files to the correct exploit file
+if [[ "$EXPLOITABLE" = 1 ]]; then
 	sed -i "s#exploitable\=.*#exploitable\=${writable_files}#g" exploits/cron-exploit.sh
-
-	if [[ "$EXPLOIT" = 1 ]]; then
-		/bin/bash exploits/cron-exploit.sh
-	fi
+        run_exploit "cron"
+else
+        test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
+        exit 0
 fi

@@ -40,11 +40,11 @@ done
 
 cd "$curr_dir"
 
-if [[ "$EXPLOITABLE" == 1 ]]; then
+if [[ "$EXPLOITABLE" = 1 ]]; then
 	# writes the exploitable files to the correct exploit file
 	sed -i "s#exploitable\=.*#exploitable\=${writable_bins}#g" exploits/path-exploit.sh
-
-	if [[ "$EXPLOIT" = 1 ]]; then
-		/bin/bash exploits/path-exploit.sh
-	fi
+        run_exploit "path"
+else
+        test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
+        exit 0
 fi
