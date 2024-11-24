@@ -32,40 +32,46 @@ h3 {
     margin: 0 auto; /* Gives that scrolling effect as the typing happens */
     letter-spacing: .15em; /* Adjust as needed */
     animation: 
-    typing 3.5s steps(30, end),
+    typing 5.5s steps(50, end),
     blink-caret .5s step-end infinite;
 }
   
   /* The typing effect */
 @keyframes typing {
     from { width: 0 }
-    to { width: 90% }
+    to { width: 100% }
 }
   
   /* The typewriter cursor effect */
 @keyframes blink-caret {
     from, to { border-color: transparent }
     50% { border-color: orange }
+    from, to { width: 50 }
+    
 }
   
  
 .download {
-    background-color: #141b18;
+    background-color: #141b1800;
 }
 
 .download button {
     background-color: #c3a719;
     font-size: large;
     border: none;
-    border-radius: 15px;
+    border-radius: 50px;
     padding-top: 10px;
     padding-bottom: 10px;
     padding-left: 15px;
     padding-right: 15px;
+    height: 75px; 
+	width: 350px;
 }
 
 .download button:hover {
     transform: scale(1.05);
+    background-color: #5a4f14;
+    color:#e2d5e2;
     transition: .1s;
 }
 
