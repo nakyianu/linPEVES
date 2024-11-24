@@ -36,8 +36,10 @@ scans=()
 
 ALL_FILES=(
 "cron"
+"env-var"
 "path"
 "pkexec"
+"readable-passwd"
 "readable-shadow"
 "shellshock"
 "sudo"
@@ -126,8 +128,8 @@ print_help()
 	printf '\t%s\n' "-s, --scan: list of scans to run (no default)"
 	printf '\t%s\n' "-e, --exploit: list of exploits to run (no default)"
 	# not for MVP
-	# printf '\t%s\n' "-p, --prompt: prompt user before exploit (false by default)"
-	# printf '\t%s\n' "-v, --verbose: add verbosity to script (false by default)"
+	printf '\t%s\n' "-p, --prompt: prompt user before exploit (false by default)"
+	printf '\t%s\n' "-v, --verbose: add verbosity to script (false by default)"
 	printf '\t%s\n' "--list: Lists all scans and their associated numerical indices"
 	printf '\t%s\n' "--version: Prints version"
 	printf '\t%s\n\n' "-h, --help: Prints help"
@@ -140,18 +142,19 @@ print_scans()
 	printf '%s\n' "  # |             SCANS             |           EXPLOITS            "
 	printf '%s\n' "----+-------------------------------+-------------------------------"
 	printf '%s\n' "  0 | cron-scan                     | cron-exploit                  "
-	printf '%s\n' "  1 | path-scan                     | path-exploit                  "
-	printf '%s\n' "  2 | pkexec-scan                   | pkexec-exploit                "
-	printf '%s\n' "  3 | readable-shadow-scan          | readable-shadow-exploit       "
-	printf '%s\n' "  4 | shellshock-scan               | shellshock-exploit            "
-	printf '%s\n' "  5 | sudo-scan                     | sudo-exploit                  "
-	printf '%s\n' "  6 | sudoers-scan                  | sudoers-exploit               "
-	printf '%s\n' "  7 | systemctl-bin-scan            | systemctl-bin-exploit         "
-	printf '%s\n' "  8 | writable-passwd-scan          | writable-passwd-exploit       "
-	printf '%s\n' "  9 | writable-shadow-scan          | writable-shadow-exploit       "
-	printf '%s\n' " 10 |                               |                               "
-	printf '%s\n' " 11 |                               |                               "
-	printf '%s\n\n' " 12 |                               |                               "
+	printf '%s\n' "  1 | env-var-scan                  | env-var-exploit               "
+	printf '%s\n' "  2 | path-scan                     | path-exploit                  "
+	printf '%s\n' "  3 | pkexec-scan                   | pkexec-exploit                "
+	printf '%s\n' "  4 | readable-passwd-scan          | readable-passwd-exploit       "
+	printf '%s\n' "  5 | readable-shadow-scan          | readable-shadow-exploit       "
+	printf '%s\n' "  6 | shellshock-scan               | shellshock-exploit            "
+	printf '%s\n' "  7 | sudo-scan                     | sudo-exploit                  "
+	printf '%s\n' "  8 | sudoers-scan                  | sudoers-exploit               "
+	printf '%s\n' "  9 | systemctl-bin-scan            | systemctl-bin-exploit         "
+	printf '%s\n' " 10 | writable-passwd-scan          | writable-passwd-exploit       "
+	printf '%s\n\n' " 11 | writable-shadow-scan          | writable-shadow-exploit       "
+	# printf '%s\n' " 11 |                               |                               "
+	# printf '%s\n' " 12 |                               |                               "
 }
 
 # Parses cli arguments
@@ -166,7 +169,7 @@ parse_commandline()
 			# Reach for the next argument to get the value.
 			# Supports bash list expansion and allows for multiple values for the --scan and -s parameters
 			-s|--scan)
-				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				# test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
 				SCAN=1
 
 				# iterates through the arguments and adds then to scan list
@@ -184,7 +187,7 @@ parse_commandline()
 				;;
 			
 			-e|--exploit)
-				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				# test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
 				EXPLOIT=1
 				# iterates through the arguments and adds then to exploit list
 				while test $# -gt 0;
@@ -262,32 +265,37 @@ validate_arguments()
 	if [ $EXPLOIT -eq 0 ] && [ $SCAN -eq 0 ]; 
 	then
 		_PRINT_HELP=yes die "No scans or exploits specified" 1
-
+	fi
 	
-	elif [ "$SCAN" -eq 1 ]; 
+	if [ "$SCAN" -eq 1 ]; 
 	then
 		if [ "${#_arg_scan[@]}" -eq 0 ];
 		then
-			scans=$ALL_FILES
+			scans=${ALL_FILES[@]}
 		else
 			for scan_num in ${_arg_scan[@]}; do
 				scans[${#scans[@]}]+=${ALL_FILES[$scan_num]}
-				# if [ $VERBOSE -eq 1 ]; then
-				# 	sed -i "s/VERBOSE\=.*/VERBOSE\=$VERBOSE/" "scans/${ALL_FILES[$scan_num]}-scan.sh"
-				# fi
 			done
 		fi
+	fi
 
-	elif [ "$EXPLOIT" -eq 1 ]; 
+	if [ "$EXPLOIT" -eq 1 ]; 
 	then
 		if [ "$PROMPT" -eq 1 ]; 
 		then
 			EXPLOIT=2
 		fi
-
+		echo ${#_arg_exploit[@]}
 		if [ "${#_arg_exploit[@]}" -eq 0 ];
 		then
-			exploits=$ALL_FILES
+			exploits=${ALL_FILES[@]}
+			for exploit in ${exploits[@]};
+			do 
+				if [[ ! "${scans[@]}" =~ "$exploit" ]];
+				then
+					exploits_to_run[${#exploits_to_run[@]}]+=$exploit
+				fi
+			done
 		else
 			for exploit_num in ${_arg_exploit[@]}; 
 			do
@@ -296,11 +304,8 @@ validate_arguments()
 
 				if [[ ! "${scans[@]}" =~ "$exploit" ]];
 				then
-					exploits_to_run[${#exploits[@]}]+=$exploit
+					exploits_to_run[${#exploits_to_run[@]}]+=$exploit
 				fi
-				# if [ "$VERBOSE" -eq 1 ]; then
-				# 	sed -i "s/VERBOSE\=.*/VERBOSE\=$VERBOSE/" "exploits/${ALL_FILES[$exploit_num]}-exploit.sh"
-				# fi
 			done
 		fi
 	fi
@@ -315,9 +320,9 @@ reset_flags()
 {
 	for scan in ${ALL_SCANS[@]};
 	do
-		sed -i "s/EXPLOIT\=.*/EXPLOIT\=0/" "scans/$scan-scan.sh";
-		sed -i "s/VERBOSE\=.*/VERBOSE\=0/" "scans/$scan-scan.sh";
-		sed -i "s/VERBOSE\=.*/VERBOSE\=0/" "scans/$scan-exploit.sh";
+		sed -i '' 's/EXPLOIT\=.*/EXPLOIT\=0/' "scans/$scan-scan.sh";
+		sed -i '' 's/VERBOSE\=.*/VERBOSE\=0/' "scans/$scan-scan.sh";
+		sed -i '' 's/VERBOSE\=.*/VERBOSE\=0/' "exploits/$scan-exploit.sh";
 	done
 }
 
@@ -327,13 +332,13 @@ set_flags()
 {
 	for exploit in ${exploits[@]};
 	do
-		sed -i "s/EXPLOIT=.*/EXPLOIT=$EXPLOIT/" "scans/$exploit-scan.sh}"
-		sed -i "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "exploit/$exploit-exploit.sh}"
+		sed -i '' "s/EXPLOIT=.*/EXPLOIT=$EXPLOIT/" "scans/$exploit-scan.sh"
+		sed -i '' "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "exploits/$exploit-exploit.sh"
 	done
 
 	for scan in ${scans[@]};
 	do
-		sed -i "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "scans/$scan-scan.sh}"
+		sed -i '' "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "scans/$scan-scan.sh"
 	done
 }
 
@@ -383,6 +388,7 @@ print_verbosity()
 	fi
 }
 
+# global function to run exploit files with prompt value
 run_exploit()
 {
 	exploit=$1
@@ -405,7 +411,27 @@ run_exploit()
 		else 
 			echo "Skipping exploit..."
 			exit 0 
+		fi
 	fi
+}
+
+run()
+{
+	# runs the scans first
+	for scan in ${scans[@]}; 
+	do
+		echo "running $scan-scan"
+		# /bin/bash "scans/$scan-scan.sh"
+		echo "done with $scan-scan"
+	done
+
+	# once all scans are done, if there are exploits left over, run those
+	for exploit in ${exploits_to_run[@]}; 
+	do
+		echo "running $exploit-exploit"
+		# /bin/bash "exploits/$exploit-exploit.sh"
+		echo "done with $exploit-exploit"
+	done
 }
 
 # Now call all the functions defined above that are needed to get the job done
@@ -435,30 +461,14 @@ export -f run_exploit
 # exploits=${new_array[@]}
 
 
-run()
-{
-	# runs the scans first
-	for scan in ${scans[@]}; 
-	do
-		echo "running $scan-scan"
-		/bin/bash "scans/$scan-scan.sh"
-		echo "done with $scan-scan"
-	done
 
-	# once all scans are done, if there are exploits left over, run those
-	for exploit in ${exploits_to_run[@]}; 
-	do
-		echo "running $exploit-exploit"
-		/bin/bash "exploits/$exploit-exploit.sh"
-		echo "done with $exploit-exploit"
-	done
-}
 
-# echo "Value of --scan: ${_arg_scan[@]}"
-# echo "Value of --exploit: ${_arg_exploit[@]}"
-# echo "Value of --prompt: $_arg_prompt"
-# echo "Value of --verbose: $_arg_verbose"
-# echo "Value of EXPLOIT: $EXPLOIT"
-# echo "Value of VERBOSE: $VERBOSE"
-# echo "Value of scans: ${scans[@]}"
-# echo "Value of exploits: ${exploits[@]}"
+echo "Value of --scan: ${_arg_scan[@]}"
+echo "Value of --exploit: ${_arg_exploit[@]}"
+echo "Value of --prompt: $_arg_prompt"
+echo "Value of --verbose: $_arg_verbose"
+echo "Value of EXPLOIT: $EXPLOIT"
+echo "Value of VERBOSE: $VERBOSE"
+echo "Value of scans: ${scans[@]}"
+echo "Value of exploits: ${exploits[@]}"
+echo "Value of exploits to run: ${exploits_to_run[@]}"
