@@ -20,11 +20,11 @@ then
 	echo "USER $(whoami) already has sudo access with NOPASSWD"
 
 else
-	if [ "$EXPLOITABLE" -eq 1 ]; 
+	if [[ "$EXPLOITABLE" -eq 1 ]]; 
 	then
 		run_exploit "sudoers"
 	else
 		test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
-		exit 
+		exit 0
 	fi
 fi

@@ -33,12 +33,12 @@ then
 	fi
 fi
 
-if [ "$EXPLOITABLE" -eq 1 ]; 
+if [[ "$EXPLOITABLE" -eq 1 ]]; 
 then
 	run_exploit "shellshock"
 else
 	test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
-	exit 
+	exit 0
 fi
 
 IFS=$oldIFS

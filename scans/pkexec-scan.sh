@@ -17,5 +17,5 @@ if [ "$EXPLOITABLE" -eq 1 ]; then
 	run_exploit "pkexec"
 else
 	test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
-	exit 
+	exit 0
 fi
