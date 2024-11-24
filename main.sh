@@ -364,6 +364,10 @@ check_writable() {
 }
 
 # global function to print statements when verbosity is enabled
+# 0 = Default
+# 1 = Success
+# 2 = Warning
+# 3 = Error
 print_verbosity() 
 {
 	statement=$1
