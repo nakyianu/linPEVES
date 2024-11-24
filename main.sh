@@ -130,8 +130,8 @@ print_help()
 	# not for MVP
 	printf '\t%s\n' "-p, --prompt: prompt user before exploit (false by default)"
 	printf '\t%s\n' "-v, --verbose: add verbosity to script (false by default)"
-	printf '\t%s\n' "--list: Lists all scans and their associated numerical indices"
-	printf '\t%s\n' "--version: Prints version"
+	printf '\t%s\n' "-l, --list: Lists all scans and their associated numerical indices"
+	printf '\t%s\n' "-V, --version: Prints version"
 	printf '\t%s\n\n' "-h, --help: Prints help"
 }
 
