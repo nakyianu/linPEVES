@@ -25,6 +25,10 @@ VERBOSE=0
 EXPLOIT=0
 PROMPT=0
 SCAN=0
+ERROR='\033[1;31m'
+WARNING='\033[1;33m'
+SUCCESS='\033[1;32m'
+NC='\033[0m'
 
 exploits=()
 exploits_to_run=()
@@ -359,10 +363,23 @@ check_writable() {
 print_verbosity() 
 {
 	statement=$1
+	flag=$2
 
 	if [[ "$VERBOSE" -eq 1 ]];
 	then
-		echo $statement
+		if [[ "$flag" = 3 ]];
+		then
+			echo -e "$ERROR ${statement^^} $NC"
+		elif [[ "$flag" = 2 ]];
+		then
+			echo -e "$WARNING ${statement^^} $NC"
+		elif [[ "$flag" = 1 ]];
+		then
+			echo -e "$SUCCESS ${statement^^} $NC"
+		elif [[ "$flag" = 0 ]];
+		then
+			echo "${statement^^}"
+		fi
 	fi
 }
 
@@ -380,14 +397,14 @@ run_exploit()
 	
 	elif [[ "$EXPLOIT" -eq 2 ]];
 	then
-		read -sp "Do you wish to proceed with exploit? (y/n): " response
+		read -sp "Proceed with exploit? (Y/n): " response
 		echo -e "\n"
-		echo "$response"
-		if [[ "$response" =~ "Y"|"y" ]]; 
+		if [[ "$response" == [yY] ]] || [[ "$response" == [yY][eE][sS] ]]; 
 		then 
 			/bin/bash "exploits/$exploit-exploit.sh"
 		else 
-			echo "Skipping exploit..." 
+			echo "Skipping exploit..."
+			exit 0 
 	fi
 }
 

@@ -9,8 +9,6 @@ if [ -w /etc/passwd ]; then
 	EXPLOITABLE=1
 fi
 
-# check to see what hash is used for the password
-
 
 if [ "$EXPLOITABLE" -eq 1 ]; then
 	run_exploit "writable-passwd"
