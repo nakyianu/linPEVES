@@ -123,7 +123,6 @@ print_help()
 	echo ""
 
 
-	printf '%s\n' "The general script's help msg"
 	printf 'Usage: %s [-s|--scan <args>] || [-e|--exploit <args>] [-p|--prompt] [-v|--verbose] [-V|--version] [-l|--list] [-h|--help]\n' "$0"
 	printf '\t%s\n' "-s, --scan: list of scans to run (no default)"
 	printf '\t%s\n' "-e, --exploit: list of exploits to run (no default)"
