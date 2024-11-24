@@ -4,16 +4,21 @@ EXPLOIT=0
 EXPLOITABLE=0
 VERBOSE=0
 
-echo "Checking sudo access"
+print_verbosity "Checking sudo access" 0
 
-sudo_access=$(sudo -l -U $(whoami) | grep -o ALL | head -1)
-no_passwd=$(sudo -l -U $(whoami) | grep -o NOPASSWD | head -1)
+
+print_verbosity "Checking writability of /etc/sudoers" 0
 
 if [[ -w /etc/sudoers ]]; 
 then
-	echo "/etc/sudoers is writable by user"
+	print_verbosity "/etc/sudoers is writable by user" 1
 	EXPLOITABLE=1
 fi
+
+print_verbosity "Checking whether user has sudo access with NOPASSWD" 0 
+
+sudo_access=$(sudo -l -U $(whoami) | grep -o ALL | head -1)
+no_passwd=$(sudo -l -U $(whoami) | grep -o NOPASSWD | head -1)
 
 if [[ -n "$sudo_access" ]] && [[ -n "$no_passwd" ]];
 then

@@ -374,13 +374,13 @@ print_verbosity()
 	then
 		if [[ "$flag" = 3 ]];
 		then
-			echo -e "$ERROR ${statement^^} $NC"
+			echo -e "ERROR: $ERROR ${statement^^} $NC"
 		elif [[ "$flag" = 2 ]];
 		then
-			echo -e "$WARNING ${statement^^} $NC"
+			echo -e "WARNING: $WARNING ${statement^^} $NC"
 		elif [[ "$flag" = 1 ]];
 		then
-			echo -e "$SUCCESS ${statement^^} $NC"
+			echo -e "SUCCESS: $SUCCESS ${statement^^} $NC"
 		elif [[ "$flag" = 0 ]];
 		then
 			echo "${statement^^}"

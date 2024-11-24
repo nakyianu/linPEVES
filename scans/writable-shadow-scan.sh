@@ -4,8 +4,10 @@ EXPLOIT=0
 EXPLOITABLE=0
 VERBOSE=0
 
+print_verbosity "Checking writability of /etc/shadow" 0
+
 if [[ -w /etc/shadow ]]; then
-	echo "/etc/shadow file is writable by user"
+	print_verbosity "/etc/shadow file is writable by user" 1
 	EXPLOITABLE=1
 fi
 

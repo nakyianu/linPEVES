@@ -10,6 +10,8 @@ version=${version/(*/}
 oldIFS=$IFS
 IFS='.' read -r -a version_arr <<< "$version"
 
+print_verbosity "Checking bash version" 0
+
 if [[ "${version_arr[0]}" -le '4' ]] && [[ "${version_arr[1]}" -le '3' ]]; 
 then
 	default_ip=18.219.242.244
@@ -28,7 +30,7 @@ then
 	fi 
 		
 	if [[ "$shellshock" = "vulnerable" ]]; then
-		echo "Version suscpetible to shellshock exploit"
+		print_verbosity "Version suscpetible to shellshock exploit" 1
 		EXPLOITABLE=1
 	fi
 fi
