@@ -2,6 +2,6 @@
 
 *.c
 
-# ignore or swp files
+# ignore all .swp files
 
 *.swp
