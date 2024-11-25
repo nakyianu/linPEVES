@@ -17,8 +17,9 @@ exploitable_paths=$(sudo -l | grep -E "sudoedit|sudo -e" | grep -E '\(root\)' | 
 
 # Indicate it is exploitable if the version is old enough and can edit sudo                                
 if [[ $sudo_ver -eq 8 ]] && [[ -z $"exploitable_paths"]]; then
-    EXPLOITABLE=1; 
-    else EXPLOITABLE=0; 
+    EXPLOITABLE=0; 
+    else EXPLOITABLE=1; 
+    print_verbosity "Sudo is compromisable!" 1
 fi
 
 # Makes exploitable_paths accessible to exploit
