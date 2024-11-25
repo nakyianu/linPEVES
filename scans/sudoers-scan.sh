@@ -15,21 +15,11 @@ then
 	EXPLOITABLE=1
 fi
 
-print_verbosity "Checking whether user has sudo access with NOPASSWD" 0 
-
-sudo_access=$(sudo -l -U $(whoami) | grep -o ALL | head -1)
-no_passwd=$(sudo -l -U $(whoami) | grep -o NOPASSWD | head -1)
-
-if [[ -n "$sudo_access" ]] && [[ -n "$no_passwd" ]];
+if [[ "$EXPLOITABLE" -eq 1 ]]; 
 then
-	echo "USER $(whoami) already has sudo access with NOPASSWD"
-
+	run_exploit "sudoers"
 else
-	if [[ "$EXPLOITABLE" -eq 1 ]]; 
-	then
-		run_exploit "sudoers"
-	else
-		test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
-		exit 0
-	fi
+	test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
+	exit 0
 fi
+
