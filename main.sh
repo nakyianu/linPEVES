@@ -282,7 +282,7 @@ validate_arguments()
 		then
 			EXPLOIT=2
 		fi
-		echo ${#_arg_exploit[@]}
+  
 		if [ "${#_arg_exploit[@]}" -eq 0 ];
 		then
 			exploits=${ALL_FILES[@]}
