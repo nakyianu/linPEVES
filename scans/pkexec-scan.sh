@@ -18,8 +18,6 @@ fi
 
 print_verbosity "Checking writablity of /etc/polkit-1/localauthority.conf.d/" 0
 
-# file=$(ls /etc/polkit-1/localauthority.conf.d* | grep 50)
-
 
 
 if [[ -w /etc/polkit-1/localauthority.conf.d ]] && [[ -n "$result" ]]; then
