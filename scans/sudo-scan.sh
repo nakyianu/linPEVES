@@ -24,8 +24,8 @@ fi
 # Makes exploitable_paths accessible to exploit
 if [[ "$EXPLOITABLE" == 1 ]]; then
     sed -i "s#exploitable\=.*#exploitable\=${exploitable_paths}#g" exploits/sudo-exploit.sh
-
-    if [[ "$EXPLOIT" == 1 ]]; then
-        /bin/bash exploits/sudo-exploit.sh
-    fi
+    run_exploit "sudo"
+else
+    test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
+    exit 0
 fi
