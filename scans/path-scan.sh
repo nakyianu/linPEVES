@@ -2,6 +2,7 @@
 
 EXPLOIT=0
 EXPLOITABLE=0
+VERBOSE=0
 
 curr_dir=$(pwd)
 
@@ -14,7 +15,7 @@ writable_bins=''
 # if not, check if we own it. if we do and we want to exploit, modify the permisions and save it.
 for path in $paths; do
         
-	echo Checking ${path}...
+	print_verbosity "Checking ${path}..." 0
         writable=$(check_writable "$path" "$EXPLOIT")
 	if [[ "$writable" = true ]]; then
                 writable_dirs+=${path}$'\n'
@@ -24,13 +25,13 @@ done
 # for every writable directory, check if there are any writable binaries within. if there are any, save them to a vaciable
 # if not, check if we own it. if we do and we want to exploit, modify the permisions and save it.
 for dir in $writable_dirs; do
-	echo ${dir} is writable! Scanning...
+	print_verbosity "${dir} is writable! Scanning..." 0
 	cd "$dir"
         for file in *; do
 		if [[ -f "$file" ]]; then
         		writable=$(check_writable "$file" "$EXPLOIT")
 			if [[ "$writable" = true ]]; then
-				echo ${dir}/${file} is exploitable!
+				print_verbosity "${dir}/${file} is exploitable!" 1
         			writable_bins+=${dir}/${file}':'
 				EXPLOITABLE=1
 			fi
