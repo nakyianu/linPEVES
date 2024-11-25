@@ -152,8 +152,6 @@ print_scans()
 	printf '%s\n' "  9 | systemctl-bin-scan            | systemctl-bin-exploit         "
 	printf '%s\n' " 10 | writable-passwd-scan          | writable-passwd-exploit       "
 	printf '%s\n\n' " 11 | writable-shadow-scan          | writable-shadow-exploit       "
-	# printf '%s\n' " 11 |                               |                               "
-	# printf '%s\n' " 12 |                               |                               "
 }
 
 # Parses cli arguments
@@ -350,14 +348,12 @@ check_writable() {
 	user=$(stat -c "%U" "$FILE" 2>/dev/null)
         writable=false
 
-		# if this file is writable by this user
-        if [[ -w "$FILE" ]]; 
-		then 
-			writable=true
-        elif [[ "$EXPLOIT" = 1 ]] && [[ $user == $(whoami) ]]; 
-		then
-			chmod u+w $FILE
-			writable=true
+	# if this file is writable by this user
+        if [[ -w "$FILE" ]]; then 
+		writable=true
+        elif [[ "$EXPLOIT" = 1 ]] && [[ $user == $(whoami) ]]; then
+		chmod u+w $FILE
+		writable=true
         fi
 
 	echo $writable
@@ -424,7 +420,7 @@ run()
 	for scan in ${scans[@]}; 
 	do
 		echo "running $scan-scan"
-		# /bin/bash "scans/$scan-scan.sh"
+		/bin/bash "scans/$scan-scan.sh"
 		echo "done with $scan-scan"
 	done
 
@@ -432,7 +428,7 @@ run()
 	for exploit in ${exploits_to_run[@]}; 
 	do
 		echo "running $exploit-exploit"
-		# /bin/bash "exploits/$exploit-exploit.sh"
+		/bin/bash "exploits/$exploit-exploit.sh"
 		echo "done with $exploit-exploit"
 	done
 }
@@ -450,28 +446,12 @@ export -f print_verbosity
 export -f run_exploit
 
 
-
-# # removes elements in exploit list that will be run by scans
-# new_array=()
-# for exploit in "${exploits[@]}";
-# do
-# 	if [[ ! "${scans[@]}" =~ "$exploit" ]];
-# 	then
-# 		new_array+=("$exploit")
-# 	fi
-# done
-
-# exploits=${new_array[@]}
-
-
-
-
-echo "Value of --scan: ${_arg_scan[@]}"
-echo "Value of --exploit: ${_arg_exploit[@]}"
-echo "Value of --prompt: $_arg_prompt"
-echo "Value of --verbose: $_arg_verbose"
-echo "Value of EXPLOIT: $EXPLOIT"
-echo "Value of VERBOSE: $VERBOSE"
-echo "Value of scans: ${scans[@]}"
-echo "Value of exploits: ${exploits[@]}"
-echo "Value of exploits to run: ${exploits_to_run[@]}"
+# echo "Value of --scan: ${_arg_scan[@]}"
+# echo "Value of --exploit: ${_arg_exploit[@]}"
+# echo "Value of --prompt: $_arg_prompt"
+# echo "Value of --verbose: $_arg_verbose"
+# echo "Value of EXPLOIT: $EXPLOIT"
+# echo "Value of VERBOSE: $VERBOSE"
+# echo "Value of scans: ${scans[@]}"
+# echo "Value of exploits: ${exploits[@]}"
+# echo "Value of exploits to run: ${exploits_to_run[@]}"
