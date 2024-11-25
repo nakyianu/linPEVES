@@ -21,7 +21,7 @@ if [[ -r /etc/passwd ]]; then
 
         # Check if the password field is not "x"
         if [[ "$password" != "x" ]]; then
-            echo "A password was found."
+            print_verbosity "A password was found." 1
 
             # Storing password, corresponding username, and other elements from that line
             exploitable_user="${username}:${password}:${rest}"
