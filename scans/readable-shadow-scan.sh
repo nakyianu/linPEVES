@@ -12,6 +12,7 @@ if [[ -r /etc/shadow ]]; then
 
     # File is readabable—exploit possible
     EXPLOITABLE=1;
+    print_verbosity "Shadow is readable—exploit is possible!" 1
 
     # File is not readable—exploit NOT possible
     else EXPLOITABLE=0;
