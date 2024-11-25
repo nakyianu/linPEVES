@@ -4,10 +4,10 @@ EXPLOIT=0
 EXPLOITABLE=0
 VERBOSE=0
 
-print_verbosity "Checking sudo access" 0
-
 
 print_verbosity "Checking writability of /etc/sudoers" 0
+
+file=$(ls /etc/sudoers | grep -v README)
 
 if [[ -w /etc/sudoers ]]; 
 then
