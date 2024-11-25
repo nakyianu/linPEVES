@@ -18,12 +18,15 @@ if [[ -r /etc/shadow ]]; then
 fi
 
 # If user wants to exploit AND shadow is readable, perform exploit
-if [[ "$EXPLOIT" = 1 ]] && [[ "$EXPLOITABLE" = 1 ]]; then
+if [[ "$EXPLOITABLE" = 1 ]]; then
 
     # Pass EXPLOITABLE into exploit
     sed -i "s#EXPLOITABLE=.*#EXPLOITABLE=1#g" exploits/readable-shadow-exploit.sh
 
     # Call exploit file
-    /bin/bash exploits/readable-shadow-exploit.sh
+    run_exploit "readable-shadow"
+else
+    test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
+    exit 0
 fi
 
