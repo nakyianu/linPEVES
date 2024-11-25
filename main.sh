@@ -124,11 +124,11 @@ print_help()
 
 
 	printf 'Usage: %s [-s|--scan <args>] || [-e|--exploit <args>] [-p|--prompt] [-v|--verbose] [-V|--version] [-l|--list] [-h|--help]\n' "$0"
-	printf '\t%s\n' "-s, --scan: list of scans to run (no default)"
-	printf '\t%s\n' "-e, --exploit: list of exploits to run (no default)"
+	printf '\t%s\n' "-s, --scan: List of scans to run (no default)"
+	printf '\t%s\n' "-e, --exploit: List of exploits to run (no default)"
 	# not for MVP
-	printf '\t%s\n' "-p, --prompt: prompt user before exploit (false by default)"
-	printf '\t%s\n' "-v, --verbose: add verbosity to script (false by default)"
+	printf '\t%s\n' "-p, --prompt: Prompt user before exploit (false by default)"
+	printf '\t%s\n' "-v, --verbose: Add verbosity to script (false by default)"
 	printf '\t%s\n' "-l, --list: Lists all scans and their associated numerical indices"
 	printf '\t%s\n' "-V, --version: Prints version"
 	printf '\t%s\n\n' "-h, --help: Prints help"
@@ -317,9 +317,9 @@ reset_flags()
 {
 	for scan in ${ALL_SCANS[@]};
 	do
-		sed 's/EXPLOIT\=.*/EXPLOIT\=0/' "scans/$scan-scan.sh";
-		sed 's/VERBOSE\=.*/VERBOSE\=0/' "scans/$scan-scan.sh";
-		sed 's/VERBOSE\=.*/VERBOSE\=0/' "exploits/$scan-exploit.sh";
+		sed -i 's/EXPLOIT\=.*/EXPLOIT\=0/' "scans/$scan-scan.sh";
+		sed -i 's/VERBOSE\=.*/VERBOSE\=0/' "scans/$scan-scan.sh";
+		sed -i 's/VERBOSE\=.*/VERBOSE\=0/' "exploits/$scan-exploit.sh";
 	done
 }
 
@@ -329,13 +329,13 @@ set_flags()
 {
 	for exploit in ${exploits[@]};
 	do
-		sed "s/EXPLOIT=.*/EXPLOIT=$EXPLOIT/" "scans/$exploit-scan.sh"
-		sed "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "exploits/$exploit-exploit.sh"
+		sed -i "s/EXPLOIT=.*/EXPLOIT=$EXPLOIT/" "scans/$exploit-scan.sh"
+		sed -i "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "exploits/$exploit-exploit.sh"
 	done
 
 	for scan in ${scans[@]};
 	do
-		sed "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "scans/$scan-scan.sh"
+		sed -i "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "scans/$scan-scan.sh"
 	done
 }
 
@@ -364,8 +364,7 @@ check_writable() {
 # 1 = Success
 # 2 = Warning
 # 3 = Error
-print_verbosity() 
-{
+print_verbosity() {
 	statement=$1
 	flag=$2
 
@@ -388,8 +387,7 @@ print_verbosity()
 }
 
 # global function to run exploit files with prompt value
-run_exploit()
-{
+run_exploit() {
 	exploit=$1
 
 	if [[ "$EXPLOIT" -eq 0 ]];
@@ -402,8 +400,7 @@ run_exploit()
 	
 	elif [[ "$EXPLOIT" -eq 2 ]];
 	then
-		read -sp "Proceed with exploit? (Y/n): " response
-		echo -e "\n"
+		read -p "Proceed with exploit? (Y/n): " response
 		if [[ "$response" == [yY] ]] || [[ "$response" == [yY][eE][sS] ]]; 
 		then 
 			/bin/bash "exploits/$exploit-exploit.sh"
@@ -433,18 +430,17 @@ run()
 	done
 }
 
+# exports function for other files to call it
+export -f check_writable
+export -f print_verbosity
+export -f run_exploit
+
 # Now call all the functions defined above that are needed to get the job done
 parse_commandline "$@"
 reset_flags
 validate_arguments
 set_flags
 run
-
-# exports function for other files to call it
-export -f check_writable
-export -f print_verbosity
-export -f run_exploit
-
 
 # echo "Value of --scan: ${_arg_scan[@]}"
 # echo "Value of --exploit: ${_arg_exploit[@]}"
