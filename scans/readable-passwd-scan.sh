@@ -10,7 +10,7 @@
 # password might be on display in this readable file.
 
 exploitable_user=''
-EXPLOIT=1
+EXPLOIT=0
 VERBOSE=0
 
 # Checks if /etc/passwd is readable by the current user
@@ -24,7 +24,7 @@ if [[ -r /etc/passwd ]]; then
             echo "A password was found."
 
             # Storing password, corresponding username, and other elements from that line
-            exploitable_user= "${username}:${password}:${rest}"
+            exploitable_user="${username}:${password}:${rest}"
         fi
     done < /etc/passwd
 
@@ -37,7 +37,7 @@ fi
 if [[ "$EXPLOITABLE" = 1 ]]; then
 
     # Passing EXPLOITABLE into exploit file
-    sed -i "s#exploitable\=.*#exploitable\=${exploitable}#g" exploits/readable-passwd-exploit.sh
+    sed -i "s#exploitable\=.*#exploitable\=${exploitable_user}#g" exploits/readable-passwd-exploit.sh
    
     # Open exploit file
     run_exploit "readable-passwd"

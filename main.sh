@@ -315,7 +315,7 @@ validate_arguments()
 # reset function used to reset scan files to EXPLOIT=0 and VERBOSE=0
 reset_flags()
 {
-	for scan in ${ALL_SCANS[@]};
+	for scan in ${ALL_FILES[@]};
 	do
 		sed -i 's/EXPLOIT\=.*/EXPLOIT\=0/' "scans/$scan-scan.sh";
 		sed -i 's/VERBOSE\=.*/VERBOSE\=0/' "scans/$scan-scan.sh";

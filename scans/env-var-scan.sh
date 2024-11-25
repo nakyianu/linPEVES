@@ -2,7 +2,7 @@
 # Environmental variable scan
 
 exploitable_passwords=''
-EXPLOIT=1
+EXPLOIT=0
 VERBOSE=0
 
 # Find environment variables with passwords-related names

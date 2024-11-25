@@ -2,7 +2,7 @@
 # Readable shadow scan
 
 # Determines whether user wants to exploit scan (if possible)
-EXPLOIT=1   
+EXPLOIT=0
 # Determines whether a scan is possible 
 EXPLOITABLE=0
 VERBOSE=0

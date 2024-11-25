@@ -1,7 +1,7 @@
 #! /bin/bash
 # Sudo version scan
 
-EXPLOIT=1
+EXPLOIT=0
 EXPLOITABLE=0
 VERBOSE=0
 
