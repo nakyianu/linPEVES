@@ -34,11 +34,14 @@ fi
 
 
 # If user wants to exploit AND shadow is readable, perform exploit
-if [[ "$EXPLOIT" = 1 ]] && [[ "$EXPLOITABLE" = 1 ]]; then
+if [[ "$EXPLOITABLE" = 1 ]]; then
 
     # Passing EXPLOITABLE into exploit file
-    sed -i "s#exploitable\=.*#exploitable\=${exploitable}#g" exploits/sudo-exploit.sh
+    sed -i "s#exploitable\=.*#exploitable\=${exploitable}#g" exploits/readable-passwd-exploit.sh
    
     # Open exploit file
-    /bin/bash exploits/readable-passwd-exploit.sh
+    run_exploit "readable-passwd"
+else
+    test $EXPLOIT != 0 && echo "Not exploitable, skipping exploit."
+    exit 0
 fi
