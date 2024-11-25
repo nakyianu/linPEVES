@@ -317,9 +317,9 @@ reset_flags()
 {
 	for scan in ${ALL_SCANS[@]};
 	do
-		sed -i '' 's/EXPLOIT\=.*/EXPLOIT\=0/' "scans/$scan-scan.sh";
-		sed -i '' 's/VERBOSE\=.*/VERBOSE\=0/' "scans/$scan-scan.sh";
-		sed -i '' 's/VERBOSE\=.*/VERBOSE\=0/' "exploits/$scan-exploit.sh";
+		sed 's/EXPLOIT\=.*/EXPLOIT\=0/' "scans/$scan-scan.sh";
+		sed 's/VERBOSE\=.*/VERBOSE\=0/' "scans/$scan-scan.sh";
+		sed 's/VERBOSE\=.*/VERBOSE\=0/' "exploits/$scan-exploit.sh";
 	done
 }
 
@@ -329,13 +329,13 @@ set_flags()
 {
 	for exploit in ${exploits[@]};
 	do
-		sed -i '' "s/EXPLOIT=.*/EXPLOIT=$EXPLOIT/" "scans/$exploit-scan.sh"
-		sed -i '' "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "exploits/$exploit-exploit.sh"
+		sed "s/EXPLOIT=.*/EXPLOIT=$EXPLOIT/" "scans/$exploit-scan.sh"
+		sed "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "exploits/$exploit-exploit.sh"
 	done
 
 	for scan in ${scans[@]};
 	do
-		sed -i '' "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "scans/$scan-scan.sh"
+		sed "s/VERBOSE=.*/VERBOSE=$VERBOSE/" "scans/$scan-scan.sh"
 	done
 }
 
