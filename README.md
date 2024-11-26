@@ -1,7 +1,7 @@
 # linPEVES
 **Lin**ux **P**rivilege **E**scalation and **V**ulnerability **E**xploit **S**cript
 
-We're making malware and changing lives for the worse
+We're making malware and changing lives for the wose.
 
 ## About our project
 Linux Privilege Escalation and Vulnerability Exploit Script (also known as linPEVES) is a tool that scans for and exploits privilege escalation vulnerabilities. Inspired by the open-source script linPEAS (Linux Privilege Escalation Awesome Script), a privilege escalation vulnerability scanning tool, our script not only identifies vulnerabilities within a target system but allows the user to perform exploits on each vulnerability found.
